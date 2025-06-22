@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Precios - Vida Natural</title>
+    <!-- Incluye Tailwind CSS para estilos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Define la fuente Inter */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Un color de fondo suave */
+        }
+        /* Estilos personalizados para la tabla si es necesario, aunque Tailwind cubre mucho */
+        .table-auto {
+            width: 100%;
+        }
+        .table-auto th, .table-auto td {
+            padding: 0.75rem; /* Relleno */
+            text-align: left; /* Alineación del texto */
+            border-bottom: 1px solid #e2e8f0; /* Borde inferior */
+        }
+        .table-auto th {
+            background-color: #e2e8f0; /* Fondo para encabezados */
+            font-weight: 600; /* Texto en negrita */
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6 lg:p-8">
+    <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-xl">
+        <header class="text-center mb-6">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-blue-800 mb-2">Vida Natural</h1>
+            <h2 class="text-xl sm:text-2xl font-bold text-blue-600 mb-4">Catálogo de Precios al Público N° 71</h2>
+            <p class="text-gray-600 text-sm italic">Vigencia a partir del 04-06-2025 - Esta lista anula las anteriores</p>
+            <p class="text-gray-700 text-md mt-4">Sitio Web: <a href="https://www.vidanaturalargentina.com" class="text-blue-500 hover:underline" target="_blank">www.vidanaturalargentina.com</a></p>
+        </header>
+
+        <section class="mb-6">
+            <div class="relative">
+                <input
+                    type="text"
+                    id="searchInput"
+                    onkeyup="filterProducts()"
+                    placeholder="Buscar productos por código o nombre..."
+                    class="w-full p-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                >
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <!-- Icono de búsqueda (SVG) -->
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+            </div>
+            <p class="text-sm text-gray-500 mt-2">Puedes buscar por código (ej. A018) o por nombre (ej. Shampoo).</p>
+        </section>
+
+        <section class="overflow-x-auto rounded-lg shadow-md">
+            <table class="table-auto min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código/SKU</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Unitario</th>
+                    </tr>
+                </thead>
+                <tbody id="productList" class="bg-white divide-y divide-gray-200">
+                    <!-- Los productos se cargarán aquí con JavaScript -->
+                </tbody>
+            </table>
+        </section>
+
+        <footer class="mt-8 text-center text-gray-500 text-sm">
+            <p>Los precios pueden variar sin previo aviso.</p>
+            <p>Consulte por descuentos por volumen.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Array de objetos con los datos de los productos
+        const products = [
+            { code: 'A018', name: 'Acondicionador Almendras (secos/cast,) x 300c.c.', price: '12.242' },
+            { code: 'C060', name: 'Acondicionador Infantil x 200c.c.', price: '12.994' },
+            { code: 'A023', name: 'Acondicionador Keratina x 300c.c.', price: '15.388' },
+            { code: 'A002', name: 'Acondicionador Ortiga (anticaída) x 300c.c.', price: '14.918' },
+            { code: 'A004', name: 'Acondicionador Propóleos (caspa) x 300c.c.', price: '14.918' },
+            { code: 'E021', name: 'ADE + Vitamina C (p/Adelgazante) x 100 compr.', price: '25.069' },
+            { code: 'E036', name: 'ADE gotas + Vitamina C (p/Adelgazante) x 70c.c.', price: '17.772' },
+            { code: 'E039', name: 'ADP + Vitamina C gotas (p/Antidepresión) x 70c.c.', price: '19.292' },
+            { code: 'E032', name: 'AFR + Vitamina C gotas (p/Afecciones Respiratorias) x 70c.c.', price: '17.772' },
+            { code: 'B020', name: 'Agua Termal x 300c.c.', price: '17.170' },
+            { code: 'E066', name: 'Ajo + Vitamina B6 x 90 compr.', price: '20.878' },
+            { code: 'E026', name: 'Alfalfa + Espirulina + Vit. C x 100 compr.', price: '28.120' },
+            { code: 'E106', name: 'ÁloeBOX (8u. sabor Original x 500c.c.) $33.666 c/u', price: '269.328' },
+            { code: 'E080', name: 'Áloe Vera + Vitamina C (sabor Ananá) x 500c.c.', price: '34.473' },
+            { code: 'E077', name: 'Áloe Vera + Vitamina C (sabor Manzana) x 500c.c.', price: '34.473' },
+            { code: 'D085', name: 'Áloe Vera + Vitamina C (sabor Original) x 500c.c.', price: '33.666' },
+            { code: 'D080', name: 'Anex (p/Antitusivo) x 250c.c.', price: '21.774' },
+            { code: 'C024', name: 'Arcilla Volcánica x 500c.c.', price: '24.705' },
+            { code: 'E094', name: 'Argi7 x 300g.', price: '56.556' },
+            { code: 'E072', name: 'Astrágalo + Vitamina B6 (Pirodixina) x 125c.c.', price: '34.449' },
+            { code: 'E023', name: 'ATR + Vitamina C (p/Reuma) x 100 compr.', price: '25.069' },
+            { code: 'E043', name: 'ATR + Vitamina C gotas (p/Artritis) x 70c.c.', price: '17.772' },
+            { code: 'A033', name: 'Baño Capilar Ortiga x 250c.c.', price: '15.388' },
+            { code: 'B038', name: 'Baño Capilar PH Ácido Almendras x 250c.c.', price: '17.170' },
+            { code: 'D082', name: 'Bee - Gor (p/Energizante) x 250c.c.', price: '25.069' },
+            { code: 'X001', name: 'BioZapper - Modulador de Frecuencia', price: '261.386' },
+            { code: 'E007', name: 'Bixa Orellana + Zanahoria + Betacaroteno x 60 compr.', price: '28.714' },
+            { code: 'C043', name: 'Bronceador Protección Máxima B30x150c.c.', price: '17.170' },
+            { code: 'E011', name: 'Calcio Citrato x 100 compr.', price: '23.284' },
+            { code: 'E061', name: 'Caramelos de Propóleos y miel x 100g.', price: '7.482' },
+            { code: 'E093', name: 'Carbo Block x 60g.', price: '30.785' },
+            { code: 'E013', name: 'Cartilago de Tiburón + Vitamina C x 60 compr.', price: '31.051' },
+            { code: 'E018', name: 'Centella Asiática + Ginkgo + Vit. C x 100 compr.', price: '26.825' },
+            { code: 'E047', name: 'Centella Asiática + Vitamina C x 70c.c.', price: '17.772' },
+            { code: 'E067', name: 'Chitosán Plus + Vitamina C x 100 compr.', price: '64.553' },
+            { code: 'E089', name: 'Clorofila + Vitamina C (sabor Menta) x 250c.c.', price: '27.563' },
+            { code: 'E065', name: 'Cocú + Vitamina C (hidroextracto) x 70c.c.', price: '18.476' },
+            { code: 'E079', name: 'Cocú + Vitamina C x 125c.c.', price: '23.947' },
+            { code: 'E083', name: 'Cocú + Vitamina C x 250c.c.', price: '42.585' },
+            { code: 'D084', name: 'Cocú + Vitamina C x 70c.c.', price: '17.688' },
+            { code: 'A035', name: 'Colonia Infantil Control Piojos x 200c.c.', price: '16.316' },
+            { code: 'F003', name: 'Colonia Infantil x 200c.c.', price: '6.513' },
+            { code: 'C062', name: 'Crema Acné Control x 60c.c.', price: '16.032' },
+            { code: 'A026', name: 'Crema Antiedad-Biorregeneradora x 120c.c.', price: '18.704' },
+            { code: 'C070', name: 'Crema Apitox x 250c.c.', price: '67.377' },
+            { code: 'B039', name: 'Crema Apitox x 60c.c.', price: '25.069' },
+            { code: 'B039C', name: 'Crema Apitox de cartera x 15c.c.', price: '7.826' },
+            { code: 'B042', name: 'Crema Apitox Roll-on x 60c.c.', price: '20.266' },
+            { code: 'A028', name: 'Crema de Limpieza Profunda x 120c.c.', price: '17.170' },
+            { code: 'C014', name: 'Crema Durazno x 60c.c.', price: '18.076' },
+            { code: 'B034', name: 'Crema EsteticDerm (descontracturante) x 250c.c.', price: '22.835' },
+            { code: 'C067', name: 'Crema Gel African Karité x 150c.c.', price: '23.120' },
+            { code: 'B006', name: 'Crema Nutrición Profunda x 60c.c.', price: '15.712' },
+            { code: 'B016', name: 'Crema Ordeñe Cuerpo x 250c.c.', price: '16.032' },
+            { code: 'B015C', name: 'Crema Ordeñe Manos Presentación Cartera x 15c.c.', price: '2.272' },
+            { code: 'B015', name: 'Crema Ordeñe Manos x 120c.c.', price: '12.242' },
+            { code: 'A025', name: 'Crema para Busto x 120c.c.', price: '15.712' },
+            { code: 'A039', name: 'Crema para Masajes (estrías y flacidez) x 250c.c.', price: '19.207' },
+            { code: 'B033', name: 'Crema para Masajes (ultrarreductora) x 250c.c.', price: '21.585' },
+            { code: 'C002', name: 'Crema Pédica x 60c.c.', price: '20.730' },
+            { code: 'A024', name: 'Crema Plus Párpados x 30c.c.', price: '19.372' },
+            { code: 'C022C', name: 'Crema Protección Máx, P60 Present, Cartera x 15c.c.', price: '4.326' },
+            { code: 'C022', name: 'Crema Protección Máxima P60 x 120c.c.', price: '23.498' },
+            { code: 'A029', name: 'Crema Q10 (antioxidante) x 120c.c.', price: '18.241' },
+            { code: 'C075', name: 'Crema Restauradora x 60c.c.', price: '18.076' },
+            { code: 'C049', name: 'Crema Sapolán Plus x 250c.c.', price: '14.442' },
+            { code: 'C006', name: 'Crema Tapioca 4 en 1 x 60c.c.', price: '18.840' },
+            { code: 'B021', name: 'Crema Termal Humectante x 60c.c.', price: '15.388' },
+            { code: 'B041C', name: 'Crema Uva Antioxidante e Hidratación Profunda de cartera x 15c.c.', price: '5.688' },
+            { code: 'B041', name: 'Crema Uva Antioxidante e Hidratación Profunda x 60c.c.', price: '18.076' },
+            { code: 'B024', name: 'Desodorante Femenino x 60c.c.', price: '7.341' },
+            { code: 'B023', name: 'Desodorante Masculino x 60c.c.', price: '7.341' },
+            { code: 'E031', name: 'DPS + Vitamina C gotas (p/Depurar) x 70c.c.', price: '17.772' },
+            { code: 'B028', name: 'Emulsión de Limpieza x 150c.c.', price: '15.388' },
+            { code: 'B022', name: 'Emulsión de Limpieza Termal x 150c.c.', price: '18.076' },
+            { code: 'C041', name: 'Emulsión Humecto-Nutritiva ADN x 150c.c.', price: '20.730' },
+            { code: 'C040', name: 'Emulsión Repelente con Citronella y Áloe x 150c.c.', price: '13.896' },
+            { code: 'E082', name: 'Espirulina + Vit. C x 60 compr.', price: '59.979' },
+            { code: 'D092', name: 'Fernet KENTA Cítrico x750c.c. (caja x 6 c/u) $7.337 c/u', price: '61.412' },
+            { code: 'D099', name: 'Fernet KENTA Cítrico x250c.c. x 1 u.', price: '3.507' },
+            { code: 'D089', name: 'Fernet KENTA Clásico x750c.c. (caja x 6 c/u) $7.337 c/u', price: '61.412' },
+            { code: 'D102', name: 'Fernet KENTA Clásico x250c.c. x 1 u.', price: '3.507' },
+            { code: 'D093', name: 'Fernet KENTA Frutos Rojos x750c.c. (caja x 6 c/u) $7.337 c/u', price: '61.412' },
+            { code: 'D098', name: 'Fernet KENTA Frutos Rojos x250c.c. x 1 u.', price: '3.507' },
+            { code: 'D095', name: 'Fernet KENTA Maracuyá x750c.c. (caja x 6 c/u) $7.337 c/u', price: '61.412' },
+            { code: 'D096', name: 'Fernet KENTA Maracuyá x250c.c. x 1 u.', price: '3.507' },
+            { code: 'D094', name: 'Fernet KENTA Menta x750c.c. (caja x 6 c/u) $7.337 c/u', price: '61.412' },
+            { code: 'D097', name: 'Fernet KENTA Menta x250c.c. x 1 u.', price: '3.507' },
+            { code: 'D090', name: 'Fernet KENTA Mix x750c.c. (caja x 6 c/u) $7.337 c/u', price: '61.412' },
+            { code: 'D101', name: 'Fernet KENTA Mix x250c.c. x 1 u.', price: '3.507' },
+            { code: 'D091', name: 'Fernet KENTA Vainilla x750c.c. (caja x 6 c/u) $7.337 c/u', price: '61.412' },
+            { code: 'D100', name: 'Fernet KENTA Vainilla x250c.c. x 1 u.', price: '3.507' },
+            { code: 'E028', name: 'Fucus (Algas Marinas) + Vitamina C x 100 compr.', price: '26.825' },
+            { code: 'E019', name: 'Garcinia Camboggia + Vitamina C x 70c.c.', price: '26.497' },
+            { code: 'C017', name: 'Gel Contorno Ojos y Labios ADN x 30c.c.', price: '19.856' },
+            { code: 'C068', name: 'Gel Dental c/ Propóleos x 200c.c.', price: '12.977' },
+            { code: 'C008', name: 'Gel Exfoliante E10 x 150c.c.', price: '17.170' },
+            { code: 'C033', name: 'Gel Extra Exfoliante E30 x 250c.c.', price: '18.840' },
+            { code: 'C046', name: 'Gel Reductor Glacial x 500c.c.', price: '24.822' },
+            { code: 'C045', name: 'Gel Refrescante Post-Solar x 150c.c.', price: '14.918' },
+            { code: 'E015', name: 'Ginkgo Biloba + Vitamina C x 60 compr.', price: '26.825' },
+            { code: 'E105', name: 'Ginkgo Biloba + Vitamina C x 70c.c.', price: '20.123' },
+            { code: 'E097', name: 'Hidrolizado de Colágeno + Vitamina C x 70c.c.', price: '26.825' },
+            { code: 'E099', name: 'Hidrolizado de Elastina + Vitamina C x 70c.c.', price: '26.825' },
+            { code: 'E051', name: 'Hisopo EHS x 70c.c.', price: '20.148' },
+            { code: 'E022', name: 'HPG + Vitamina C (p/Hipoglucemiante) x 100 compr.', price: '24.407' },
+            { code: 'E103', name: 'INM + Vitamina C (p/Inmuno) x 100 compr.', price: '26.825' },
+            { code: 'E044', name: 'INM + Vitamina C gotas (p/Inmuno) x 70c.c.', price: '19.877' },
+            { code: 'A017', name: 'Jabón c/Propóleos x 140c.c.', price: '5.512' },
+            { code: 'B046', name: 'Jabón líquido Limón Dulce con áloe vera y propóleos x 250c.c.', price: '8.574' },
+            { code: 'E068', name: 'Jengibre + Vitamina B1 x 125c.c.', price: '23.498' },
+            { code: 'E002', name: 'L - Teanina + Vit. B5 y B6 x 30 compr.', price: '23.505' },
+            { code: 'E006', name: 'Lapacho Plus BOX (8u. concentrado + Vit. B6 x 500c.c.) $26.387 c/u', price: '211.096' },
+            { code: 'E005', name: 'Lapacho Dorado Plus + Vit. B6, Ginseng y Ginkgo biloba x 500c.c.', price: '26.387' },
+            { code: 'E029', name: 'Levadura Cerveza + Vitamina C x 100 compr.', price: '23.284' },
+            { code: 'C076', name: 'Loción Antiestrés x 140c.c.', price: '10.076' },
+            { code: 'B019', name: 'Loción Astringente x 140c.c.', price: '10.296' },
+            { code: 'A037', name: 'Loción Capilar Ortiga x 140c.c.', price: '15.646' },
+            { code: 'C077', name: 'Loción Desmaquillante x 140c.c.', price: '9.168' },
+            { code: 'C078', name: 'Loción Hidratante x 140c.c.', price: '9.168' },
+            { code: 'A036', name: 'Loción Infantil Control Piojos x 200c.c.', price: '16.316' },
+            { code: 'C050', name: 'Loción Repelente con Citronella x 300c.c.', price: '17.170' },
+            { code: 'C052', name: 'Loción Tonificante x 140c.c.', price: '10.296' },
+            { code: 'E020', name: 'Magnesio Citrato x 60 compr.', price: '21.585' },
+            { code: 'E017', name: 'NutriFit (espirulina, minerales y vitaminas) x 60 compr.', price: '29.856' },
+            { code: 'E038', name: 'PAR + Vitamina C gotas (p/Parasitos) x 70c.c.', price: '17.772' },
+            { code: 'F061', name: 'Perfumante Ambiental y de Telas x 200c.c. Maracuyá', price: '4.800' },
+            { code: 'F051', name: 'Perfumante Ambiental y de Telas x 200c.c. B.B', price: '4.800' },
+            { code: 'F093', name: 'Perfumante Ambiental y de Telas x 200c.c. Mango y Ananá', price: '4.800' },
+            { code: 'F076', name: 'Perfumante Ambiental y de Telas x 200c.c. Bella', price: '4.800' },
+            { code: 'F070', name: 'Perfumante Ambiental y de Telas x 200c.c. Cher', price: '4.800' },
+            { code: 'F092', name: 'Perfumante Ambiental y de Telas x 200c.c. Manzana y Pepino', price: '4.800' },
+            { code: 'F057', name: 'Perfumante Ambiental y de Telas x 200c.c. Chicle', price: '4.800' },
+            { code: 'F077', name: 'Perfumante Ambiental y de Telas x 200c.c. Millon', price: '4.800' },
+            { code: 'F080', name: 'Perfumante Ambiental y de Telas x 200c.c. Coni', price: '4.800' },
+            { code: 'F083', name: 'Perfumante Ambiental y de Telas x 200c.c. Nardo & Amazonia', price: '4.800' },
+            { code: 'F069', name: 'Perfumante Ambiental y de Telas x 200c.c. Cotton', price: '4.800' },
+            { code: 'F060', name: 'Perfumante Ambiental y de Telas x 200c.c. Peach Bellini', price: '4.800' },
+            { code: 'F066', name: 'Perfumante Ambiental y de Telas x 200c.c. Flores Blancas', price: '4.800' },
+            { code: 'F063', name: 'Perfumante Ambiental y de Telas x 200c.c. Red-Plum & Fresia', price: '4.800' },
+            { code: 'F074', name: 'Perfumante Ambiental y de Telas x 200c.c. Garbo', price: '4.800' },
+            { code: 'F058', name: 'Perfumante Ambiental y de Telas x 200c.c. Sandía-Pepino', price: '4.800' },
+            { code: 'F067', name: 'Perfumante Ambiental y de Telas x 200c.c. Hibiscus', price: '4.800' },
+            { code: 'F078', name: 'Perfumante Ambiental y de Telas x 200c.c. Shanti', price: '4.800' },
+            { code: 'F075', name: 'Perfumante Ambiental y de Telas x 200c.c. Invictus', price: '4.800' },
+            { code: 'F072', name: 'Perfumante Ambiental y de Telas x 200c.c. Sweetberry', price: '4.800' },
+            { code: 'F065', name: 'Perfumante Ambiental y de Telas x 200c.c. Lavanda', price: '4.800' },
+            { code: 'F068', name: 'Perfumante Ambiental y de Telas x 200c.c. Té Verde', price: '4.800' },
+            { code: 'F059', name: 'Perfumante Ambiental y de Telas x 200c.c. Limón Dulce', price: '4.800' },
+            { code: 'F082', name: 'Perfumante Ambiental y de Telas x 200c.c. Te Verde & Pepino', price: '4.800' },
+            { code: 'F082', name: 'Perfumante Ambiental y de Telas x 200c.c. Uva - Naranja', price: '4.800' },
+            { code: 'F094', name: 'Perfumes Línea Püke x 50ml Anahí', price: '24.829' },
+            { code: 'F096', name: 'Perfumes Línea Püke x 50ml Irys', price: '27.851' },
+            { code: 'F095', name: 'Perfumes Línea Püke x 50ml Inti', price: '21.264' },
+            { code: 'F097', name: 'Perfumes Línea Püke x 50ml Lihuel', price: '26.486' },
+            { code: 'F098', name: 'Perfumes Línea Püke x 50ml Newen', price: '23.498' },
+            { code: 'E109', name: 'Potasio Citrato X 60comp.', price: '24.829' },
+            { code: 'D081', name: 'ProFit x 125c.c.', price: '21.264' },
+            { code: 'D083', name: 'Propóleos + Vitamina C x 125c.c.', price: '26.486' },
+            { code: 'E063', name: 'Propóleos y Miel de abejas + Vit. C x 125c.c.', price: '23.498' },
+            { code: 'B031', name: 'Reparador de Puntas Capilares x 30c.c.', price: '15.388' },
+            { code: 'E081', name: 'Resveratrol + Vit. C x 60 compr.', price: '51.251' },
+            { code: 'E024', name: 'SDT + Vitamina C (p/Sedante) x 100 compr.', price: '24.822' },
+            { code: 'E034', name: 'SDT + Vitamina C gotas (p/Sedante) x 70c.c.', price: '17.772' },
+            { code: 'C069', name: 'Sérum Reparador ULTRA ANTIAGE x 30c.c.', price: '25.526' },
+            { code: 'E091', name: 'Set D-Tox (limpieza interior)', price: '97.964' },
+            { code: 'E090', name: 'Set Par-FREE (desparasitario)', price: '128.679' },
+            { code: 'A016', name: 'Shampoo Almendras (secos/cast,) x 300c.c.', price: '14.918' },
+            { code: 'C071', name: 'Shampoo Facial SIN sal, sulfatos ni parabenos x 140cc', price: '6.641' },
+            { code: 'A015', name: 'Shampoo Infantil Control Piojos x 200c.c.', price: '12.090' },
+            { code: 'C061', name: 'Shampoo Infantil x 200c.c.', price: '11.408' },
+            { code: 'A027', name: 'Shampoo Keratina x 300c.c.', price: '16.032' },
+            { code: 'A001', name: 'Shampoo Ortiga (anticaída) x 300c.c.', price: '15.908' },
+            { code: 'A003', name: 'Shampoo Propóleos (caspa) x 300c.c.', price: '15.908' },
+            { code: 'E113', name: 'Strong Omega3 x60 cáps. blandas', price: '54.414' },
+            { code: 'E114', name: 'Triptófano + Vit. B1 y B6 x 30 compr.', price: '25.005' },
+            { code: 'C048', name: 'Talco c/Propóleos x 200c.c.', price: '11.589' },
+            { code: 'E095', name: 'Ultra Slim x 250g.', price: '41.612' },
+            { code: 'A032', name: 'Ungüento de Propóleos x 60c.c.', price: '18.241' },
+            { code: 'E111', name: 'Vitaly Plus SIX PACK (6u. x 360g) $53.117 c/u', price: '318.702' },
+            { code: 'E110', name: 'Vitaly Plus x 360g.', price: '53.117' },
+            { code: 'E112', name: 'VitalyBOX (9u. x 360g) $53.117 c/u', price: '478.053' },
+            { code: 'E016', name: 'Vitamina C x 60 compr.', price: '21.585' },
+            { code: 'E014', name: 'Vitamina E x 60 compr.', price: '21.585' },
+            { code: 'E104', name: 'Zinc + Vitamina C x 60 compr.', price: '21.395' }
+        ];
+
+        // Función para renderizar la lista de productos
+        function renderProducts(filteredProducts = products) {
+            const productListDiv = document.getElementById('productList');
+            productListDiv.innerHTML = ''; // Limpiar la lista existente
+
+            // Asegurarse de que filteredProducts sea un array.
+            // Si filteredProducts no es un array, se usará el array completo 'products'.
+            const productsToRender = Array.isArray(filteredProducts) ? filteredProducts : products;
+
+
+            if (productsToRender.length === 0) {
+                productListDiv.innerHTML = `
+                    <tr>
+                        <td colspan="3" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">
+                            No se encontraron productos que coincidan con la búsqueda.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            productsToRender.forEach(product => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-100'; // Efecto hover para las filas
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 rounded-bl-lg">${product.code}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${product.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold rounded-br-lg">$${product.price}</td>
+                `;
+                productListDiv.appendChild(row);
+            });
+        }
+
+        // Función para filtrar productos
+        function filterProducts() {
+            const searchInput = document.getElementById('searchInput');
+            const searchTerm = searchInput.value.toLowerCase();
+
+            const filtered = products.filter(product => {
+                return product.name.toLowerCase().includes(searchTerm) ||
+                       product.code.toLowerCase().includes(searchTerm);
+            });
+            renderProducts(filtered);
+        }
+
+        // Renderizar todos los productos cuando la página carga
+        // Se envuelve la llamada en una función anónima para asegurar que no se pasen argumentos inesperados.
+        window.onload = () => renderProducts(products);
+    </script>
+</body>
+</html>
